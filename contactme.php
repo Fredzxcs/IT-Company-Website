@@ -1,16 +1,31 @@
 <?php   
-    require("./mailing/mailfunction.php");
+require('mailing/mailfunction.php');
 
-    $name = $_POST["name"];
-    $phone = $_POST['phone'];
-    $email = $_POST["email"];
-    $message = $_POST["message"];
+$name = htmlspecialchars(strip_tags($_POST["name"]));
+$phone = htmlspecialchars(strip_tags($_POST['phone']));
+$email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
+$message = htmlspecialchars(strip_tags($_POST["message"]));
 
-    $body = "<ul><li>Name: ".$name."</li><li>Phone: ".$phone."</li><li>Email: ".$email."</li><li>Message: ".$message."</li></ul>";
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo 'Invalid email format! Please go back and enter a valid email.';
+    exit;
+}
 
-    $status = mailfunction("", "Company", $body); //reciever
-    if($status)
-        echo '<center><h1>Thanks! We will contact you soon.</h1></center>';
-    else
-        echo '<center><h1>Error sending message! Please try again.</h1></center>';    
+$body = "<ul>
+            <li>Name: ".$name."</li>
+            <li>Phone: ".$phone."</li>
+            <li>Email: ".$email."</li>
+            <li>Message: ".$message."</li>
+         </ul>";
+
+$receiver_email = "iskolartechsolutions@gmail.com";
+$receiver_name = "Iskolartech Solutions";
+
+$status = mailfunction($receiver_email, $receiver_name, $body);
+
+if ($status) {
+    echo 'Thanks! We will contact you soon.';
+} else {
+    echo 'Error sending message! Please try again.';
+}
 ?>

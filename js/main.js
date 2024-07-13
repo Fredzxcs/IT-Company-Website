@@ -74,4 +74,89 @@ $('.accordion-header').click(function(){
     $(this).children('span').text('-');
 });
 
+
+// Image Slider
+let slideIndex = 0;
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+const slideWidth = slides[0].clientWidth;
+const slider = document.querySelector('.slider');
+let autoSlideInterval;
+
+function showSlide(index) {
+    if (index < 0) {
+        slideIndex = totalSlides - 1;
+    } else if (index >= totalSlides) {
+        slideIndex = 0;
+    } else {
+        slideIndex = index;
+    }
+
+    const offset = -slideIndex * slideWidth;
+    slider.style.transform = `translateX(${offset}px)`;
+}
+
+function nextSlide() {
+    showSlide(slideIndex + 1);
+}
+
+function prevSlide() {
+    showSlide(slideIndex - 1);
+}
+
+function startAutoSlide() {
+    autoSlideInterval = setInterval(nextSlide, 3000);
+}
+
+function stopAutoSlide() {
+    clearInterval(autoSlideInterval);
+}
+
+// Automatic slide change
+startAutoSlide();
+
+// Event listeners for arrow buttons
+document.querySelector('.prev').addEventListener('click', () => {
+    prevSlide();
+    stopAutoSlide();
 });
+
+document.querySelector('.next').addEventListener('click', () => {
+    nextSlide();
+    stopAutoSlide();
+});
+
+// Pause automatic slide change when hovering over the slider
+slider.addEventListener('mouseover', stopAutoSlide);
+slider.addEventListener('mouseout', startAutoSlide);
+
+$(document).ready(function() {
+    $('#contactForm').on('submit', function(event) {
+        event.preventDefault(); // Prevent the form from submitting the default way
+
+        var formData = new FormData(this);
+
+        fetch('contactme.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            let message;
+            if (data.includes('Thanks! We will contact you soon.')) {
+                message = 'Thanks! We will contact you soon.';
+            } else {
+                message = 'Error sending message! Please try again.';
+            }
+            $('#statusMessage').text(message);
+            $('#statusModal').modal('show');
+        })
+        .catch(error => {
+            $('#statusMessage').text('Error sending message! Please try again.');
+            $('#statusModal').modal('show');
+        });
+    });
+});
+
+});
+
